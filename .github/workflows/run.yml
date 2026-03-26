@@ -1,0 +1,37 @@
+name: 每日股票分析自动运行
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # 手动触发
+  schedule:
+    - cron: "0 1 * * *" # 每天早上9点自动跑
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 设置Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+          pip install akshare pandas matplotlib
+
+      - name: 运行股票分析
+        run: python main.py
+
+      - name: 上传结果
+        uses: actions/upload-artifact@v4
+        with:
+          name: stock-result
+          path: |
+            *.png
+            *.csv
+            *.xlsx
